@@ -86,7 +86,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 //SINGLE DOWN CLICK: RESETS TO MAIN TEXT SCREEN
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-    text_layer_set_text(s_output_layer, "Want to check in on Facebook? Press Select Button!");
+    //text_layer_set_text(s_output_layer, "Want to check in on Facebook? Press Select Button!");
+  main_window_load(window);
 }
 
 
