@@ -1,0 +1,23 @@
+{
+    "appKeys": {
+        "message": 1,
+        "status": 0
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "russelldeguzman@ucla.edu",
+    "longName": "LAHackathon",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "2",
+    "shortName": "LAHackathon",
+    "uuid": "28cc8c79-6785-4f59-8c7b-5fc94610f029",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
