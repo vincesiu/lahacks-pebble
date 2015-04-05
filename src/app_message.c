@@ -1,7 +1,8 @@
 #include <pebble.h>
 
 Window *window;	
-static TextLayer *s_output_layer;;
+static TextLayer *s_output_layer;
+char name_buffer[64];
 	
 // Key values for AppMessage Dictionary
 enum {
@@ -10,7 +11,7 @@ enum {
   KEY_BUTTON_EVENT = 2,
   BUTTON_EVENT_UP = 3,
   BUTTON_EVENT_DOWN = 4,
-  BUTTON_EVENT_SELECT = 5
+  BUTTON_EVENT_SELECT = 5,
 };
 
 // Write message to buffer & send
@@ -86,7 +87,6 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 //SINGLE DOWN CLICK: RESETS TO MAIN TEXT SCREEN
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-    //text_layer_set_text(s_output_layer, "Want to check in on Facebook? Press Select Button!");
   main_window_load(window);
 }
 
@@ -98,9 +98,56 @@ void config_provider(Window *window) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+//processes the incoming touples
+void process_tuple(Tuple *t)
+{
+  app_log(APP_LOG_LEVEL_DEBUG,
+                __FILE__,
+                __LINE__,
+                "Processing Tuple");
+  //Get key
+  int key = t->key;
+  char keyChar=(char)key;
+  //text_layer_set_text(s_output_layer,(char*)&keyChar);
+  //Get string value, if present
+  char string_value[32];
+  strcpy(string_value, (char*)t->value->cstring);
+  
+//display the person's name who is nearby
+  if(key==STATUS_KEY){
+     // snprintf(name_buffer, 50, "%s is nearby! Click Down Button to Reset", string_value);
+      text_layer_set_text(s_output_layer, (char*) &string_value);
+  }
+}
+
+//handles the recieved data
 static void in_received_handler(DictionaryIterator *iter, void *context) 
 {
-  //TODO APP Sends information to the watch, display who's in range
+  // APP Sends information to the watch, display who's in range
+  
+    (void) context;
+     
+    //Get data
+    Tuple *t = dict_read_first(iter);
+    while(t)
+    {
+      switch(t->key){
+        case MESSAGE_KEY:
+          process_tuple(t);
+          break;
+        case STATUS_KEY:
+          break;
+      }
+        app_log(APP_LOG_LEVEL_DEBUG,
+                __FILE__,
+                __LINE__,
+                "Tuple Key=%i",
+                (int)t->key);
+         
+        //Get next
+        t = dict_read_next(iter);
+    }
+  
 }
 
 
@@ -112,9 +159,8 @@ void init(void) {
     .load = main_window_load,
     .unload = main_window_unload
   });
-  
+
   //Register AppMessage events
-  app_message_register_inbox_received(in_received_handler);           
   app_message_open(512, 512);    //Large input and output buffer sizes
 
 	window_stack_push(window, true);
