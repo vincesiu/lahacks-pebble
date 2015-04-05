@@ -14,31 +14,6 @@ enum {
   BUTTON_EVENT_SELECT = 5,
 };
 
-// Write message to buffer & send
-/*void send_message(void){
-	DictionaryIterator *iter;
-	
-	app_message_outbox_begin(&iter);
-	dict_write_uint8(iter, STATUS_KEY, 0x1);
-	
-	dict_write_end(iter);
-  	app_message_outbox_send();
-}*/
-
-// Called when a message is received from PebbleKitJS
-/*static void in_received_handler(DictionaryIterator *received, void *context) {
-	Tuple *tuple;
-	
-	tuple = dict_find(received, STATUS_KEY);
-	if(tuple) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Status: %d", (int)tuple->value->uint32); 
-	}
-	
-	tuple = dict_find(received, MESSAGE_KEY);
-	if(tuple) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Message: %s", tuple->value->cstring);
-	}
-}*/
 
 //SENDS AN INTEGER CODE TO THE ANDROID APP SIDE  
 void send_int(uint8_t key, uint8_t cmd)
@@ -107,7 +82,6 @@ void process_tuple(Tuple *t)
                 "Processing Tuple");
   //Get key
   int key = t->key;
-  char keyChar=(char)key;
   //text_layer_set_text(s_output_layer,(char*)&keyChar);
   //Get string value, if present
   char string_value[32];
@@ -115,8 +89,8 @@ void process_tuple(Tuple *t)
   
 //display the person's name who is nearby
   if(key==STATUS_KEY){
-     // snprintf(name_buffer, 50, "%s is nearby! Click Down Button to Reset", string_value);
-      text_layer_set_text(s_output_layer, (char*) &string_value);
+      snprintf(name_buffer, 50, "%s is nearby! Click Down Button to Reset", string_value);
+      text_layer_set_text(s_output_layer, (char*) &name_buffer);
   }
 }
 
@@ -129,7 +103,12 @@ static void in_received_handler(DictionaryIterator *iter, void *context)
      
     //Get data
     Tuple *t = dict_read_first(iter);
-    while(t)
+    if(t)//VIBRATE ON POSITIVE ACK
+    {
+        vibes_short_pulse();
+    }
+  
+    while(t)//parses through the dictionary and processes each tuple DOESNT WORK
     {
       switch(t->key){
         case MESSAGE_KEY:
@@ -176,7 +155,7 @@ void init(void) {
 	//send_message();
 }
 
-void deinit(void) {
+void deinit(void) { //destroys the the window and deallocates memory
 	app_message_deregister_callbacks();
 	window_destroy(window);
 }
